@@ -27,10 +27,20 @@ async function run() {
     await client.connect();
     // MENU COLLECTION
     const menuCollection = client.db("bistroDB").collection("menu");
+    // USER COLLECTION
+    const usersCollection = client.db("bistroDB").collection("users");
     // REVIEWS COLLECTION
     const reviewCollection = client.db("bistroDB").collection("reviews");
     // CART COLLECTION
     const cartCollection = client.db("bistroDB").collection("carts");
+
+
+    //USER DATA
+    app.post('/users', async (req,res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    })
 
     // MENU DATA
     app.get('/menu', async (req, res) => {
@@ -58,7 +68,6 @@ async function run() {
     
     app.post('/carts', async(req, res) => {
       const item = req.body;
-      console.log(item);
       const result = await cartCollection.insertOne(item);
       res.send(result);
     })
