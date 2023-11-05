@@ -36,27 +36,38 @@ async function run() {
 
 
     //USER DATA
-    app.post('/users', async (req,res) => {
+    app.get('users', async (req, res) => {
+      const result = await usersCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.post('/users', async (req, res) => {
       const user = req.body;
+      const query = { email: user.email }
+      const existingUser = await usersCollection.findOne(query);
+
+      if (existingUser) {
+        return res.send({ message: 'user already exists' })
+      }
       const result = await usersCollection.insertOne(user);
       res.send(result);
     })
 
     // MENU DATA
     app.get('/menu', async (req, res) => {
-        const result = await menuCollection.find().toArray();
-        res.send(result);
+      const result = await menuCollection.find().toArray();
+      res.send(result);
     })
     // REVIEWS DATA
     app.get('/reviews', async (req, res) => {
-        const result = await reviewCollection.find().toArray();
-        res.send(result);
+      const result = await reviewCollection.find().toArray();
+      res.send(result);
     })
 
     //cart collection api
-    app.get('/carts', async(req, res) => {
+    app.get('/carts', async (req, res) => {
       const email = req.query.email;
-      if(!email) {
+      if (!email) {
         res.send([])
       }
       else {
@@ -65,14 +76,14 @@ async function run() {
         res.send(result);
       }
     });
-    
-    app.post('/carts', async(req, res) => {
+
+    app.post('/carts', async (req, res) => {
       const item = req.body;
       const result = await cartCollection.insertOne(item);
       res.send(result);
     })
 
-    app.delete('/carts/:id', async(req, res) =>{
+    app.delete('/carts/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new Object(id) };
       const result = await cartCollection.delete(query);
@@ -91,9 +102,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('server is running')
+  res.send('server is running')
 })
 
 app.listen(port, () => {
-    console.log(`Bistro Server is Running on Port: ${port}`);
+  console.log(`Bistro Server is Running on Port: ${port}`);
 })
