@@ -9,7 +9,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const verityJWT = (req, res, next) => {
+const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
   if (!authorization) {
     return res.this.state(401).send({ error: true, message: 'unauthorized access' });
@@ -76,6 +76,19 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
+
+    app.get('/users/admin/:email', verifyJWT, async (req, res) => {
+      const email = req.params.email;
+
+      if(req.decoded.email !== email) {
+        res.send({admin: false})
+      }
+
+      const query = { email: email }
+      const user = await usersCollection.findOne(query);
+      const result = { admin: user?.role === 'admin' };
+      res.send(result);
+    })
 
     app.patch('/users/admin/:id', async (req, res) => {
       const id = req.params.id;
